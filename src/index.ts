@@ -120,12 +120,15 @@ server.tool(
         ...(tags && { tags }),
       });
 
-      if (!results || (Array.isArray(results) && results.length === 0)) {
+      // API may return an array directly or { memories: [...] } wrapper
+      const memories = Array.isArray(results) ? results : ((results as any)?.memories ?? (results as any)?.data ?? []);
+
+      if (!memories || memories.length === 0) {
         return success({ memories: [], message: 'No matching memories found.' });
       }
 
       return success({
-        memories: (Array.isArray(results) ? results : []).map(m => ({
+        memories: memories.map((m: any) => ({
           id: m.id,
           content: m.processed || m.raw,
           layer: m.layer,
